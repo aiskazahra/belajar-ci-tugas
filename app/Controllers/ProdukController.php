@@ -20,32 +20,76 @@ class ProdukController extends BaseController
 
     public function index()
     {
-        return view('produk/index', [
-        'products' => $this->productModel->findAll()
+        if (!$this->authenticate()) {
+            return $this->unauthorized();
+        }
+
+        $page = (int) ($this->request->getGet('page') ?? 1);
+        $perPage = (int) ($this->request->getGet('per_page') ?? 10);
+
+        $products = $this->model->paginate($perPage, 'default', $page);
+
+        return $this->respond([
+            'data' => $products,
+            'pagination' => [
+                'current_page' => $page,
+                'per_page'     => $perPage,
+                'last_page'    => $this->model->pager->getPageCount(),
+                'total_data'   => $this->model->pager->getTotal(),
+                'has_next'     => $page < $this->model->pager->getPageCount(),
+                'has_prev'     => $page > 1,
+            ]
         ]);
     }
 
+    public function show($id = null)
+    {
+        if (!$this->authenticate()) {
+            return $this->unauthorized();
+        }
+
+        $product = $this->model->find($id);
+
+        if (!$product) {
+            return $this->failNotFound('Produk tidak ditemukan');
+        }
+
+        return $this->respond($product);
+    } 
+
     public function create()
     {
-    $dataFoto = $this->request->getFile('foto');
+        if (!$this->authenticate()) {
+            return $this->unauthorized();
+        }
 
-    $dataForm = [
-        'nama' => $this->request->getPost('nama'),
-        'harga' => $this->request->getPost('harga'),
-        'jumlah' => $this->request->getPost('jumlah') 
-    ];
+        $data = $this->request->getJSON(true);
 
-    if ($dataFoto->isValid()) {
-        $fileName = $dataFoto->getRandomName(); 
-        $dataFoto->move('img/', $fileName);
-        
-        $dataForm['foto'] = $fileName;
-    }
+        $this->model->insert($data);
 
-    $this->productModel->insert($dataForm);
-
-    return redirect('produk')->with('success', 'Data Berhasil Ditambah');
+        return $this->respondCreated([
+            'message' => 'Produk berhasil ditambahkan'
+        ]);
     } 
+
+    public function update($id = null)
+    {
+        if (!$this->authenticate()) {
+            return $this->unauthorized();
+        }
+
+        if (!$this->model->find($id)) {
+            return $this->failNotFound('Produk tidak ditemukan');
+        }
+
+        $data = $this->request->getJSON(true);
+
+        $this->model->update($id, $data);
+
+        return $this->respond([
+            'message' => 'Produk berhasil diperbarui'
+        ]);
+    }
 
     public function edit($id)
     {
@@ -77,12 +121,21 @@ class ProdukController extends BaseController
     return redirect('produk')->with('success', 'Data Berhasil Diubah');
     }
 
-    public function delete($id)
+    public function delete($id = null)
     {
-    $dataProduk = $this->productModel->find($id);
-    $this->productModel->delete($id);
+        if (!$this->authenticate()) {
+            return $this->unauthorized();
+        }
 
-    return redirect('produk')->with('success', 'Data Berhasil Dihapus');
+        if (!$this->model->find($id)) {
+            return $this->failNotFound('Produk tidak ditemukan');
+        }
+
+        $this->model->delete($id);
+
+        return $this->respondDeleted([
+            'message' => 'Produk berhasil dihapus'
+        ]);
     }
 
     public function download()
