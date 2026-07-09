@@ -32,9 +32,23 @@ if (session()->getFlashData('success')) {
                 <tr>
                     <td><?= $item['name'] ?></td>
                     <td><img src="<?= base_url() . "img/" . $item['options']['foto'] ?>" width="100px"></td>
-                    <td><?= number_to_currency($item['price'], 'IDR') ?></td> 
+                    <td>
+                        <?php if ($diskon > 0) : ?>
+                            <span class="text-decoration-line-through text-muted"><?= number_to_currency($item['price'], 'IDR') ?></span><br>
+                            <span class="text-danger fw-bold"><?= number_to_currency($item['discounted_price'], 'IDR') ?></span>
+                        <?php else : ?>
+                            <?= number_to_currency($item['price'], 'IDR') ?>
+                        <?php endif; ?>
+                    </td>
                     <td><input type="number" min="1" name="qty<?= $i++ ?>" class="form-control" value="<?= $item['qty'] ?>"></td>
-                    <td><?= number_to_currency($item['subtotal'], 'IDR') ?></td>
+                    <td>
+                        <?php if ($diskon > 0) : ?>
+                            <span class="text-decoration-line-through text-muted"><?= number_to_currency($item['subtotal'], 'IDR') ?></span><br>
+                            <span class="text-danger fw-bold"><?= number_to_currency($item['discounted_subtotal'], 'IDR') ?></span>
+                        <?php else : ?>
+                            <?= number_to_currency($item['subtotal'], 'IDR') ?>
+                        <?php endif; ?>
+                    </td>
                     <td>
                         <a href="<?= base_url('keranjang/delete/' . $item['rowid'] . '') ?>" class="btn btn-danger"><i class="bi bi-trash"></i></a>
                     </td>

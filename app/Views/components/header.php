@@ -1,3 +1,9 @@
+  <?php
+  helper('number');
+  $activeDiscount = model(\App\Models\DiscountModel::class)
+      ->where('tanggal', date('Y-m-d'))
+      ->first();
+  ?>
   <!-- ======= Header ======= -->
   <header id="header" class="header fixed-top d-flex align-items-center">
 
@@ -8,6 +14,15 @@
       </a>
       <i class="bi bi-list toggle-sidebar-btn"></i>
     </div><!-- End Logo -->
+
+    <?php if ($activeDiscount) : ?>
+      <div class="d-none d-md-flex align-items-center ms-3">
+        <span class="badge bg-danger p-2">
+          <i class="bi bi-tag-fill"></i>
+          Diskon Hari Ini: <?= number_to_currency($activeDiscount['nominal'], 'IDR') ?>
+        </span>
+      </div>
+    <?php endif; ?>
 
     <div class="search-bar">
       <form class="search-form d-flex align-items-center" method="POST" action="#">

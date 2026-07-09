@@ -70,9 +70,23 @@
             ?>
                     <tr>
                         <td><?= $item['name'] ?></td>
-                        <td><?= number_to_currency($item['price'], 'IDR') ?></td>
+                        <td>
+                            <?php if ($diskon > 0) : ?>
+                                <span class="text-decoration-line-through text-muted"><?= number_to_currency($item['price'], 'IDR') ?></span><br>
+                                <span class="text-danger fw-bold"><?= number_to_currency($item['discounted_price'], 'IDR') ?></span>
+                            <?php else : ?>
+                                <?= number_to_currency($item['price'], 'IDR') ?>
+                            <?php endif; ?>
+                        </td>
                         <td><?= $item['qty'] ?></td>
-                        <td><?= number_to_currency($item['price'] * $item['qty'], 'IDR') ?></td>
+                        <td>
+                            <?php if ($diskon > 0) : ?>
+                                <span class="text-decoration-line-through text-muted"><?= number_to_currency($item['price'] * $item['qty'], 'IDR') ?></span><br>
+                                <span class="text-danger fw-bold"><?= number_to_currency($item['discounted_subtotal'], 'IDR') ?></span>
+                            <?php else : ?>
+                                <?= number_to_currency($item['price'] * $item['qty'], 'IDR') ?>
+                            <?php endif; ?>
+                        </td>
                     </tr>
             <?php
                 endforeach;
